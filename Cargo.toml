@@ -1,0 +1,23 @@
+[package]
+name = "chip8_emu"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+rust-version = "1.60"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chip8 = { path = "chip8" }
+egui = "0.19"
+eframe = { version = "0.19.0", features = ["persistence"] }
+serde = { version = "1", feature = ["derive"] }
+
+# native: 
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tracing-subscriber = "0.3"
+
+
+[profile.release]
+opt-level = 2 # fast and small wasm
+
+# sdl2 = "0.35"
