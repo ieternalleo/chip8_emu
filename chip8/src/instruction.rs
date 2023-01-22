@@ -1,9 +1,9 @@
 use crate::chip8::Chip8;
 use lazy_static::*;
-use rand::prelude::*;
+//use rand::prelude::*;
 
-use std::{collections::HashMap, default};
-
+use std::{default};
+type OpCode = u16;
 type Instr = fn(&mut Chip8) -> ();
 pub(crate) type InstructionSet = Vec<Instruction>;
 
@@ -30,22 +30,42 @@ impl Instruction {
 }
 
 lazy_static! {
-    pub static ref INSTRUCTION_SET: HashMap<&'static str, Instruction> = {
-        let mut map = HashMap::new();
-        map.insert("00E0", Instruction::new("00E0", 0, cls));
-        map.insert("00EE", Instruction::new("00EE", 0, ret));
-        map.insert("1NNN", Instruction::new("1NNN", 3, jp));
-        map.insert("2NNN", Instruction::new("2NNN", 3, call));
-        map.insert("3XKK", Instruction::new("3XKK", 3, se_vx_byte));
-        map.insert("4XKK", Instruction::new("4XKK", 3, sne_vx_byte));
-        map.insert("5XY0", Instruction::new("5XY0", 3, se_vx_vy));
-        map.insert("6XKK", Instruction::new("6XKK", 3, ld_vx_byte));
-        map.insert("7XKK", Instruction::new("7XKK", 3, add_vx_byte));
+    pub static ref INSTRUCTION_SET: Vec<Instruction> = {
+        let mut map = Vec::with_capacity(16);
+        map.push(Instruction::new("00E0", 0, cls_or_ret));
+        map.push(Instruction::new("1NNN", 3, jp));
+        map.push(Instruction::new("2NNN", 3, call));
+        map.push(Instruction::new("3XKK", 3, se_vx_byte));
+        map.push(Instruction::new("4XKK", 3, sne_vx_byte));
+        map.push(Instruction::new("5XY0", 3, se_vx_vy));
+        map.push(Instruction::new("6XKK", 3, ld_vx_byte));
+        map.push(Instruction::new("7XKK", 3, add_vx_byte));
+        map.push(Instruction::new("8XY0", 3, op_vx_vy));
+        map.push(Instruction::new("ANNN", 3, annn));
+        map.push(Instruction::new("BNNN", 3, bnnn));
+        map.push(Instruction::new("CXKK", 3, cxkk));
+        //map.push(Instruction::new("DXYN", 3, dxyn));
+        // covers SKP Vx and SKNP Vx
+        //map.push(Instruction::new("EX00", 3, dxyn));
+        /*
+          Seperately calls:
+            ld_vx_dt, ld_vx_k, ld_dt_vx, ld_st_vx, add_i_vx, ld_f_vx, ld_b_vx, ld_i_vx. ld_vx_i
+
+         */
         map
     };
 }
 
+pub fn cls_or_ret(chip: &mut Chip8) {
+    if chip.curr_op & 0xF == 1 {
+        cls(chip);
+    } else {
+        ret(chip);
+    }
+}
+
 // [00E0] - Clear the Display
+// - Requires out put to work.
 pub fn cls(chip: &mut Chip8) {
     todo!("Clear the display")
 }
@@ -116,6 +136,21 @@ pub fn add_vx_byte(chip: &mut Chip8) {
     let vx = (chip.curr_op >> 2) & 0x0F;
     let byte = chip.curr_op as u8;
     chip.registers[vx as usize] += byte;
+}
+
+pub fn op_vx_vy(chip: &mut Chip8) {
+    match chip.curr_op & 0xF {
+        0x0 => ld_vx_vy(chip),
+        0x1 => or_vx_vy(chip),
+        0x2 => and_vx_vy(chip),
+        0x3 => xor_vx_vy(chip),
+        0x4 => add_vx_vy(chip),
+        0x5 => sub_vx_vy(chip),
+        0x6 => { /*shr_vx_vy(chip)*/ }
+        0x7 => { /*subn_vx_vy(chip)*/ }
+        0xE => { /*shl_vx_vy  */ }
+        _ => unreachable!(),
+    }
 }
 
 // 8xy0 - LD Vx, Vy

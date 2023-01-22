@@ -1,19 +1,17 @@
-use lazy_static::*;
 use serde::{Deserialize, Serialize};
 use serde_big_array::BigArray;
 
-use super::instruction::initialize_instruction_set;
-use super::instruction::{Instruction, InstructionSet, INSTRUCTION_SET};
+use super::instruction::INSTRUCTION_SET;
 use super::{Byte, Ram, Stack, Word};
 
-use std::{collections::HashMap, collections::VecDeque, default::Default, hash::Hash};
+use std::{collections::VecDeque, default::Default};
 
 #[derive(Deserialize, Serialize)]
 // #[serde(defaulst)]
 pub struct Chip8 {
     pub(crate) registers: [Byte; 16],
-    pub(crate) delay_timer: Byte,
-    pub(crate) sound_timer: Byte,
+    delay_timer: Byte,
+    sound_timer: Byte,
     pub(crate) index_register: Word, // Only 12 bits are used for adressing
     pub(crate) program_counter: Word,
     pub(crate) stack_pointer: Word, // Points to the top of the stack
@@ -21,7 +19,6 @@ pub struct Chip8 {
     pub(crate) ram: Ram,
     pub(crate) stack: Stack,
     pub(crate) curr_op: Word,
-    instructions: InstructionSet,
 }
 
 impl Chip8 {
@@ -42,29 +39,8 @@ impl Chip8 {
 
         let func = (self.curr_op & 0xF000) >> 12;
         let idx = 0;
-        // Decode Opcode
-        match func {
-            0x0 => {
-                let operation = match self.curr_op & 0x000F {
-                    0x0 => INSTRUCTION_SET.get("00E0").unwrap(),
-                    0xE => INSTRUCTION_SET.get("00EE").unwrap(),
-                    _ => unimplemented!(),
-                };
-                operation.execute()(self)
-            }
-            0x1 => INSTRUCTION_SET.get("1NNN").unwrap().execute()(self),
-            0x2 => INSTRUCTION_SET.get("2NNN").unwrap().execute()(self),
-            0x3 => INSTRUCTION_SET.get("3XKK").unwrap().execute()(self),
-            0x4 => INSTRUCTION_SET.get("4XKK").unwrap().execute()(self),
-            0x5 => INSTRUCTION_SET.get("5XY0").unwrap().execute()(self),
-            0x6 => INSTRUCTION_SET.get("6XKK").unwrap().execute()(self),
-            0x7 => INSTRUCTION_SET.get("7XKK").unwrap().execute()(self),
-            0xA => INSTRUCTION_SET.get("ANNN").unwrap().execute()(self),
-            _ => unimplemented!(),
-        }
-
-        // Execute opcode
-
+        // Decode Opcode and Execute opcode
+        INSTRUCTION_SET[func as usize].execute();
         // Update Timers
     }
 }
@@ -81,7 +57,6 @@ impl Default for Chip8 {
             program_counter: 0,
             stack_pointer: 0,
             curr_op: 0x0000,
-            instructions: initialize_instruction_set(),
         }
     }
 }
@@ -102,5 +77,4 @@ mod tests {
         assert_eq!(chip.program_counter, 0x0200);
         assert_eq!(chip.index_register, 0x02F0);
     }
-    
 }
