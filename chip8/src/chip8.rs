@@ -38,7 +38,7 @@ impl Chip8 {
         self.program_counter += 2;
 
         let func = (self.curr_op & 0xF000) >> 12;
-        let idx = 0;
+        let _idx = 0;
         // Decode Opcode and Execute opcode
         INSTRUCTION_SET[func as usize].execute();
         // Update Timers

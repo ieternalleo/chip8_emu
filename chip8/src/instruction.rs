@@ -2,7 +2,7 @@ use crate::chip8::Chip8;
 use lazy_static::*;
 //use rand::prelude::*;
 
-use std::{default};
+use std::default;
 type OpCode = u16;
 type Instr = fn(&mut Chip8) -> ();
 pub(crate) type InstructionSet = Vec<Instruction>;
@@ -66,7 +66,7 @@ pub fn cls_or_ret(chip: &mut Chip8) {
 
 // [00E0] - Clear the Display
 // - Requires out put to work.
-pub fn cls(chip: &mut Chip8) {
+pub fn cls(_chip: &mut Chip8) {
     todo!("Clear the display")
 }
 
@@ -126,8 +126,8 @@ pub fn se_vx_vy(chip: &mut Chip8) {
 // [6XKK] Load Vx, Byte
 // Set Vx = Byte
 pub fn ld_vx_byte(chip: &mut Chip8) {
-    let vx = (chip.curr_op >> 2) & 0x0F;
-    let byte = chip.curr_op as u8;
+    let _vx = (chip.curr_op >> 2) & 0x0F;
+    let _byte = chip.curr_op as u8;
 }
 
 // [7XKK] ADD Vx, Byte
@@ -199,13 +199,7 @@ pub fn add_vx_vy(chip: &mut Chip8) {
 
     let res: u16 = (chip.registers[vx as usize] + chip.registers[vy as usize]) as u16;
     chip.registers[vx as usize] = res as u8;
-    chip.registers[0xF as usize] = {
-        if res > 255 {
-            1
-        } else {
-            0
-        }
-    };
+    chip.registers[0xF_usize] = (res > 255) as u8;
 }
 
 // 8xy5 - SUB Vx, Vy
@@ -214,13 +208,7 @@ pub fn add_vx_vy(chip: &mut Chip8) {
 pub fn sub_vx_vy(chip: &mut Chip8) {
     let vx = (chip.curr_op >> 2) & 0x0F;
     let vy = (chip.curr_op >> 1) & 0x00F;
-    chip.registers[0xF as usize] = {
-        if vx > vy {
-            1
-        } else {
-            0
-        }
-    };
+    chip.registers[0xF_usize] = (vx > vy) as u8;
     let res = chip.registers[vx as usize] + chip.registers[vy as usize];
     chip.registers[vx as usize] = res;
 }
@@ -252,8 +240,8 @@ pub fn annn(chip: &mut Chip8) {
 // Jump to location nnn + V0
 // The program counter is set to nnn plus the value of V0.
 pub fn bnnn(chip: &mut Chip8) {
-    let v0 = chip.registers[0];
-    let nnn = chip.curr_op & 0x0FFF;
+    let _v0 = chip.registers[0];
+    let _nnn = chip.curr_op & 0x0FFF;
     chip.index_register = chip.curr_op & 0x0FFF;
 }
 

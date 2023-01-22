@@ -30,11 +30,11 @@ impl Chip8 {
     }
 
     pub fn write_byte(&mut self, address: usize, byte: u8) {
-        self.ram[address as usize] = byte;
+        self.ram[address] = byte;
     }
     pub fn write_word(_address: usize, word: u16) {
-        let byte1 = (word >> 8) as u8;
-        let byte2 = (word & 0xFF00) as u8;
+        let _byte1 = (word >> 8) as u8;
+        let _byte2 = (word & 0xFF00) as u8;
     }
 
     pub fn reset_ram(&mut self) {
@@ -48,7 +48,7 @@ impl Chip8 {
     pub fn ram_to_text(&mut self) -> String {
         let mut string_buf = String::new();
         for row in 0x1FF..(self.ram.len() - 8) {
-            for col in 0..8 {
+            for _col in 0..8 {
                 writeln!(
                     string_buf,
                     "0x{:02x} 0x{:02x} 0x{:02x} 0x{:02x}",
