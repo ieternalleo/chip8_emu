@@ -61,6 +61,10 @@ impl Default for Chip8 {
     }
 }
 
+pub fn new_annn(i: &mut u16, nib: u16) {
+    *i = nib;
+}
+
 #[cfg(test)]
 mod tests {
     use super::Chip8;
@@ -72,9 +76,10 @@ mod tests {
     #[test]
     fn test_annn_opcode() {
         let mut chip: Chip8 = Chip8::new();
-        chip.load_program(&[0xA2, 0xF0]);
+        let program = &[0xA2, 0xF0];
+        chip.load_program(program);
         chip.emulate_cycle();
-        assert_eq!(chip.program_counter, 0x0200);
+        assert_eq!(chip.program_counter, (program.len() + 0x0200) as u16);
         assert_eq!(chip.index_register, 0x02F0);
     }
 }
