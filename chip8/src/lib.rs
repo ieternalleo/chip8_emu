@@ -4,7 +4,7 @@ mod ram_ops;
 mod stack_ops;
 mod test_rom;
 mod utils;
-pub use chip8::Chip8;
+pub use self::chip8::Chip8;
 
 use std::collections::VecDeque;
 
