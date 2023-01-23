@@ -13,6 +13,7 @@ const FREE_RAM_SIZE: usize = TOTAL_RAM_SIZE - FONT_SIZE; // total RAM space - FO
 const FONT_ADDRESS_START: usize = 0x000;
 const FONT_ADDRESS_END: usize = 0x050;
 const PROGRAM_ADDRESS_START: usize = 0x200;
+const PROGRAM_SPACE_SIZE: usize = TOTAL_RAM_SIZE - 0x200;
 impl Chip8 {
     pub fn initialize_ram(&mut self) {
         self.ram = [0; 4096];
@@ -24,13 +25,13 @@ impl Chip8 {
 
     pub fn load_program(&mut self, program: &[u8]) {
         for (i, v) in program.iter().enumerate() {
-            self.write_byte(i + 0x050, *v)
+            self.write_byte(i + PROGRAM_ADDRESS_START, *v)
         }
     }
 
     // zeroes out the program space (0x200 : 0xFFF)
     pub fn reset_ram(&mut self) {
-        self.ram[0x080..].copy_from_slice(&[0; FREE_RAM_SIZE]);
+        self.ram[PROGRAM_ADDRESS_START..].copy_from_slice(&[0; PROGRAM_SPACE_SIZE]);
         self.load_font();
     }
 

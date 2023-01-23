@@ -35,13 +35,13 @@ impl Chip8 {
     pub fn emulate_cycle(&mut self) {
         // Fetch Opcode from MEMORY[PC] ( |OpCode| = 1 WORD )
         self.curr_op = self.read_word(self.program_counter as usize);
-
+        self.program_counter += 2;
         let func = (self.curr_op & 0xF000) >> 12;
         let _idx = 0;
         // Decode Opcode and Execute opcode
         INSTRUCTION_SET[func as usize](self);
         // Update Timers
-        self.program_counter += 2;
+
     }
 }
 
@@ -112,7 +112,7 @@ mod tests {
         chip.initialize_ram();
         chip.load_program(program);
         chip.emulate_cycle();
-        chip.dump_to_file("two_opcode_test.txt", 8);
+        //chip.dump_to_file("two_opcode_test.txt", 8);
         assert_eq!(chip.registers[0], 0xF0);
 
         // Execute JP instruction

@@ -40,6 +40,7 @@ lazy_static! {
         ld_vx_byte,
         add_vx_byte,
         op_vx_vy,
+        skip,
         annn,
         bnnn,
         cxkk,]
@@ -127,6 +128,7 @@ pub fn se_vx_vy(chip: &mut Chip8) {
 pub fn ld_vx_byte(chip: &mut Chip8) {
     let _vx = (chip.curr_op >> 2) & 0x0F;
     let _byte = chip.curr_op as u8;
+    chip.registers[_vx as usize] = _byte;
 }
 
 // [7XKK] ADD Vx, Byte
@@ -227,7 +229,7 @@ pub fn sub_vx_vy(chip: &mut Chip8) {
 // 9xy0 - SNE Vx, Vy
 // Skip next instruction if Vx != Vy.
 // The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
-
+pub fn skip(chip: &mut Chip8) {}
 // Annn - LD I, addr
 // Set I = nnn.
 // The value of register I is set to nnn.
@@ -239,9 +241,9 @@ pub fn annn(chip: &mut Chip8) {
 // Jump to location nnn + V0
 // The program counter is set to nnn plus the value of V0.
 pub fn bnnn(chip: &mut Chip8) {
-    let _v0 = chip.registers[0];
-    let _nnn = chip.curr_op & 0x0FFF;
-    chip.index_register = chip.curr_op & 0x0FFF;
+    let _v0 = chip.registers[0] as u16;
+    let _nnn= chip.curr_op & (0x0FFF);
+    chip.program_counter = _nnn + _v0;
 }
 
 // Cxkk - RND Vx, byte
