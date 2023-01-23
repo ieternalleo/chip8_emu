@@ -126,8 +126,8 @@ pub fn se_vx_vy(chip: &mut Chip8) {
 // [6XKK] Load Vx, Byte
 // Set Vx = Byte
 pub fn ld_vx_byte(chip: &mut Chip8) {
-    let _vx = (chip.curr_op >> 2) & 0x0F;
-    let _byte = chip.curr_op as u8;
+    let _vx = (chip.curr_op >> 8) & 0x0F;
+    let _byte = (chip.curr_op & 0xFF) as u8;
     chip.registers[_vx as usize] = _byte;
 }
 
