@@ -40,7 +40,7 @@ impl Chip8 {
         let func = (self.curr_op & 0xF000) >> 12;
         let _idx = 0;
         // Decode Opcode and Execute opcode
-        INSTRUCTION_SET[func as usize].execute();
+        INSTRUCTION_SET[func as usize](self);
         // Update Timers
     }
 }

@@ -30,20 +30,19 @@ impl Instruction {
 }
 
 lazy_static! {
-    pub static ref INSTRUCTION_SET: Vec<Instruction> = {
-        let mut map = Vec::with_capacity(16);
-        map.push(Instruction::new("00E0", 0, cls_or_ret));
-        map.push(Instruction::new("1NNN", 3, jp));
-        map.push(Instruction::new("2NNN", 3, call));
-        map.push(Instruction::new("3XKK", 3, se_vx_byte));
-        map.push(Instruction::new("4XKK", 3, sne_vx_byte));
-        map.push(Instruction::new("5XY0", 3, se_vx_vy));
-        map.push(Instruction::new("6XKK", 3, ld_vx_byte));
-        map.push(Instruction::new("7XKK", 3, add_vx_byte));
-        map.push(Instruction::new("8XY0", 3, op_vx_vy));
-        map.push(Instruction::new("ANNN", 3, annn));
-        map.push(Instruction::new("BNNN", 3, bnnn));
-        map.push(Instruction::new("CXKK", 3, cxkk));
+    pub static ref INSTRUCTION_SET: Vec<fn(&mut Chip8)> = {
+        vec![cls_or_ret,
+        jp,
+        call,
+        se_vx_byte,
+        sne_vx_byte,
+        se_vx_vy,
+        ld_vx_byte,
+        add_vx_byte,
+        op_vx_vy,
+        annn,
+        bnnn,
+        cxkk,]
         //map.push(Instruction::new("DXYN", 3, dxyn));
         // covers SKP Vx and SKNP Vx
         //map.push(Instruction::new("EX00", 3, dxyn));
@@ -52,7 +51,7 @@ lazy_static! {
             ld_vx_dt, ld_vx_k, ld_dt_vx, ld_st_vx, add_i_vx, ld_f_vx, ld_b_vx, ld_i_vx. ld_vx_i
 
          */
-        map
+
     };
 }
 
