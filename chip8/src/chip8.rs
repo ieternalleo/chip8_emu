@@ -7,7 +7,7 @@ use super::{Byte, Ram, Stack, Word};
 use std::{collections::VecDeque, default::Default};
 
 #[derive(Deserialize, Serialize)]
-// #[serde(defaulst)]
+// #[serde(default)]
 pub struct Chip8 {
     pub(crate) registers: [Byte; 16],
     delay_timer: Byte,
@@ -35,13 +35,13 @@ impl Chip8 {
     pub fn emulate_cycle(&mut self) {
         // Fetch Opcode from MEMORY[PC] ( |OpCode| = 1 WORD )
         self.curr_op = self.read_word(self.program_counter as usize);
-        self.program_counter += 2;
 
         let func = (self.curr_op & 0xF000) >> 12;
         let _idx = 0;
         // Decode Opcode and Execute opcode
-        INSTRUCTION_SET[func as usize].execute();
+        INSTRUCTION_SET[func as usize](self);
         // Update Timers
+        self.program_counter += 2;
     }
 }
 
@@ -69,6 +69,16 @@ mod tests {
         let result = 2 + 2;
         assert_eq!(result, 4);
     }
+
+    #[test]
+    fn test_jp_opcode() {
+        let mut chip: Chip8 = Chip8::new();
+        let program = &[0x12, 0xF0];
+        chip.load_program(program);
+        chip.emulate_cycle();
+        assert_eq!(chip.program_counter, 0x2F0)
+    }
+
     #[test]
     fn test_annn_opcode() {
         let mut chip: Chip8 = Chip8::new();
@@ -76,5 +86,32 @@ mod tests {
         chip.emulate_cycle();
         assert_eq!(chip.program_counter, 0x0200);
         assert_eq!(chip.index_register, 0x02F0);
+    }
+
+    #[test]
+    fn test_bnnn_opcode() {
+        let mut chip: Chip8 = Chip8::new();
+        let program = &[0xB2, 0xF0];
+        chip.load_program(program);
+        chip.emulate_cycle();
+
+        assert_eq!(chip.program_counter, 0x02F0);
+    }
+
+    #[test]
+    fn two_opcode_program() {
+        let mut chip: Chip8 = Chip8::new();
+
+        // Load a byte into Vx and then JP to PC + Vx
+        let program = &[0x60, 0xF0, 0xB2, 0xF0];
+        chip.initialize_ram();
+        chip.load_program(program);
+        chip.emulate_cycle();
+        chip.dump_to_file("two_opcode_test.txt", 8);
+        assert_eq!(chip.registers[0], 0xF0);
+
+        // Execute JP instruction
+        // chip.emulate_cycle();
+        // assert_eq!(chip.program_counter, 0xF0 + 0x2F0);
     }
 }
