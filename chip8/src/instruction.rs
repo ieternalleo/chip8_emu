@@ -70,7 +70,7 @@ pub fn cls(_chip: &mut Chip8) {
     todo!("Clear the display")
 }
 
-// [00EE] Return from a subroutine
+// [00EE] - Return from a subroutine
 // Interpreter sets the PC to the address at the top of the stack then subtracts 1 from the stack pointer.
 pub fn ret(chip: &mut Chip8) {
     //  Set PC to the top address at the top of the stack
