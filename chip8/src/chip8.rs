@@ -2,9 +2,18 @@ use serde::{Deserialize, Serialize};
 use serde_big_array::BigArray;
 
 use super::instruction::INSTRUCTION_SET;
-use super::{Byte, Ram, Stack, Word};
+use super::{Bit, Byte, Ram, Stack, Word};
 
 use std::{collections::VecDeque, default::Default};
+
+const BITMAP_HEIGHT: usize = 32;
+const BITMAP_WIDTH: usize = 64;
+
+#[derive(Deserialize, Serialize, Copy, Clone)]
+pub(crate) enum Pixel {
+    Black = 0,
+    White = 1,
+}
 
 #[derive(Deserialize, Serialize)]
 // #[serde(default)]
@@ -19,6 +28,8 @@ pub struct Chip8 {
     pub(crate) ram: Ram,
     pub(crate) stack: Stack,
     pub(crate) curr_op: Word,
+    #[serde(with = "BigArray")]
+    pub(crate) bit_map: [Pixel; BITMAP_WIDTH * BITMAP_HEIGHT],
 }
 
 impl Chip8 {
@@ -41,7 +52,6 @@ impl Chip8 {
         // Decode Opcode and Execute opcode
         INSTRUCTION_SET[func as usize](self);
         // Update Timers
-
     }
 }
 
@@ -57,6 +67,7 @@ impl Default for Chip8 {
             program_counter: 0,
             stack_pointer: 0,
             curr_op: 0x0000,
+            bit_map: [Pixel::Black; BITMAP_WIDTH * BITMAP_HEIGHT],
         }
     }
 }

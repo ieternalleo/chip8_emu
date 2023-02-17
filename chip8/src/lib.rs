@@ -7,7 +7,7 @@ mod utils;
 pub use self::chip8::Chip8;
 
 use std::collections::VecDeque;
-
+type Bit = bool;
 type Word = u16;
 type Byte = u8;
 type Tribble = u16;

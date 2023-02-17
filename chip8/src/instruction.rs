@@ -1,4 +1,4 @@
-use crate::chip8::Chip8;
+use crate::chip8::{self, Chip8};
 use lazy_static::*;
 //use rand::prelude::*;
 
@@ -231,16 +231,38 @@ pub fn shr_vx_vy(chip: &mut Chip8) {
 // 8xy7 - SUBN Vx, Vy
 // Set Vx = Vy - Vx, set VF = NOT borrow.
 // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
-fn subn_vx_vy(chip: &mut Chip8) {}
+fn subn_vx_vy(chip: &mut Chip8) {
+    let y = ((chip.curr_op >> 4) & 0xF) as usize;
+    let x = ((chip.curr_op >> 8) & 0xF) as usize;
+    let vy = chip.registers[y];
+    let vx = chip.registers[x];
+    chip.registers[0xF] = u8::from(vy > vx);
+    chip.registers[x] = vy.wrapping_sub(vx);
+}
 
 // 8xyE - SHL Vx {, Vy}
-// Set Vx = Vx SHL 1.
-// If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
-fn shl_vx_vy(chip: &mut Chip8) {}
+// Set Vx = Vx SHL VY.
+// If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is set to Vx shifted left by Vy.
+fn shl_vx_vy(chip: &mut Chip8) {
+    let y = ((chip.curr_op >> 4) & 0xF) as usize;
+    let x = ((chip.curr_op >> 8) & 0xF) as usize;
+    let vx = chip.registers[x];
+    let vy = chip.registers[y];
+    let lsb_vx = u8::from(vx & 0x80 == 0x80);
+    chip.registers[x] = vx.wrapping_shl(vy as u32);
+}
 // 9xy0 - SNE Vx, Vy
 // Skip next instruction if Vx != Vy.
 // The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
-pub fn sne_vx_vy(chip: &mut Chip8) {}
+pub fn sne_vx_vy(chip: &mut Chip8) {
+    let y = ((chip.curr_op >> 4) & 0xF) as usize;
+    let x = ((chip.curr_op >> 8) & 0xF) as usize;
+    let vx = chip.registers[x];
+    let vy = chip.registers[y];
+    if vy.ne(&vx) {
+        chip.program_counter += 2;
+    }
+}
 // Annn - LD I, nnn
 // Set I = nnn.
 // The value of register I is set to nnn.
@@ -269,7 +291,11 @@ pub fn rnd_vx_kk(chip: &mut Chip8) {
 
 // Dxyn - DRW Vx, Vy, nibble
 // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
-fn drw_vx_vy_n(chip: &mut Chip8) {}
+fn drw_vx_vy_n(chip: &mut Chip8) {
+    let curr_op = chip.curr_op;
+    let sprite_size = curr_op & 0xF;
+    let v_i = chip.index_register;
+}
 // The interpreter reads n bytes from memory, starting at the address stored in I.
 // These bytes are then displayed as sprites on screen at coordinates (Vx, Vy).
 // Sprites are XORed onto the existing screen. If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0.
@@ -335,8 +361,5 @@ fn ld_i_vx(chip: &mut Chip8) {}
 // The interpreter reads values from memory starting at location I into registers V0 through Vx.
 fn ld_vx_mem_val(chip: &mut Chip8) {}
 
-
 #[cfg(test)]
-mod tests {
-    
-}
+mod tests {}
