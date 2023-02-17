@@ -47,9 +47,6 @@ lazy_static! {
         drw_vx_vy_n,
         e_ops,
         f_ops]
-        //map.push(Instruction::new("DXYN", 3, dxyn));
-        // covers SKP Vx and SKNP Vx
-        //map.push(Instruction::new("EX00", 3, dxyn));
         /*
           Seperately calls:
             ld_vx_dt, ld_vx_k, ld_dt_vx, ld_st_vx, add_i_vx, ld_f_vx, ld_b_vx, ld_i_vx. ld_vx_i
