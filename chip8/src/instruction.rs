@@ -147,9 +147,9 @@ pub fn op_vx_vy(chip: &mut Chip8) {
         0x3 => xor_vx_vy(chip),
         0x4 => add_vx_vy(chip),
         0x5 => sub_vx_vy(chip),
-        0x6 => { /*shr_vx_vy(chip)*/ }
-        0x7 => { /*subn_vx_vy(chip)*/ }
-        0xE => { /*shl_vx_vy  */ }
+        0x6 => shr_vx_vy(chip),
+        0x7 => subn_vx_vy(chip),
+        0xE => shl_vx_vy(chip),
         _ => unreachable!(),
     }
 }
